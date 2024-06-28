@@ -1,0 +1,959 @@
+thonny.org
+
+UF2 file : 
+https://micropython.org/download/rp2-pico/
+https://micropython.org/download/rp2-pico-w/
+
+pinout:
+https://www.raspberrypi.com/documentation/microcontrollers/images/picow-pinout.svg
+https://pico.pinout.xyz/
+
+======================================================
+
+1.led blink(digital output)
+#led pin 2,3,'LED'
+from machine import Pin
+import time
+led1 =Pin('LED',Pin.OUT)
+while True:
+    led1.toggle()
+    time.sleep(1)
+=====================================================
+from machine import Pin
+import time
+led1 =Pin('LED',Pin.OUT)
+while True:
+    led1.value(1)
+    time.sleep(1)
+    led1.value(0)
+    time.sleep(1)
+======================================================
+from machine import Pin
+import time
+led1 =Pin('LED',Pin.OUT)
+while True:
+    led1.low()
+    time.sleep(1)
+    led1.high()
+    time.sleep(1)
+====================================================
+from machine import Pin
+import time
+led1 =Pin('LED',Pin.OUT)
+for x range (5):
+    led1.low()
+    time.sleep(1)
+    led1.high()
+    time.sleep(1)
+=====================================================
+from machine import Pin
+import utime
+led1 =Pin(2,Pin.OUT)
+led2 =Pin(3,Pin.OUT)
+delay = 500
+while True:
+    led1.value(1)
+    led2.value(0)
+    print("Led1 On")
+    utime.sleep_ms(delay)
+    led1.value(0)
+    led2.value(1)
+    print("Led2 On")
+    utime.sleep_ms(delay)
+    led1.value(1)
+    led2.value(1)
+    print("Led1 & Led2 On")
+    utime.sleep_ms(delay)
+    led1.value(0)
+    led2.value(0)
+    print("Led1 & Led2 Off")
+    utime.sleep_ms(delay)
+=====================================================
+
+#######################################################################################
+
+2.button(digital input)
+from machine import Pin
+import time 
+button1 = Pin(5, Pin.IN, Pin.PULL_UP)#Internal pull-up
+button2 = Pin(4, Pin.IN, Pin.PULL_UP)
+while True:
+    print("=========================")
+    b1=button1.value()  
+    b2=button2.value()
+    print("Button1: ",b1)
+    print("Button2: ",b2)
+    time.sleep(0.5)
+====================================================================================
+from machine import Pin
+from utime import sleep_ms
+button1 = Pin(5, Pin.IN, Pin.PULL_UP)#Internal pull-up
+button2 = Pin(4, Pin.IN, Pin.PULL_UP)
+led1 = Pin(2, Pin.OUT)
+led2 = Pin(3, Pin.OUT)
+while True:
+    if button1.value() == 0:       #key press
+            led1.value(1)
+    else:
+            led1.value(0)
+    if button2.value() == 0:       #key press
+            led2.value(1)           
+    else:
+            led2.value(0)
+===================================================================================
+from machine import Pin
+from utime import sleep_ms
+button1 = Pin(5, Pin.IN, Pin.PULL_UP)#Internal pull-up
+button2 = Pin(4, Pin.IN, Pin.PULL_UP)
+led1 = Pin(2, Pin.OUT)
+led2 = Pin(3, Pin.OUT)
+while True:
+            led1.value(button1.value())
+            led2.value(button2.value())
+            sleep_ms(100)
+=================================================================================
+from machine import Pin
+from utime import sleep_ms
+button1 = Pin(5, Pin.IN, Pin.PULL_UP)#Internal pull-up
+button2 = Pin(4, Pin.IN, Pin.PULL_UP)
+led1 = Pin(2, Pin.OUT)
+led2 = Pin(3, Pin.OUT)
+while True:
+            led1.value(not(button1.value()))
+            led2.value(not(button2.value()))
+            sleep_ms(100)
+=================================================================================
+from machine import Pin
+import time
+
+counter = 0
+sw_BtN1 = Pin(4,Pin.IN, Pin.PULL_UP)
+sw_BtN2 = Pin(5,Pin.IN, Pin.PULL_UP)
+
+while True:
+    if sw_BtN2.value()==0:
+        print("Button Pressed2")
+        counter+=1
+        print("Count:",counter)
+        while(1):
+            if sw_BtN2.value()==1:
+                time.sleep(0.1)
+                break
+    if sw_BtN1.value()==0:
+        print("Button Pressed1") 
+        counter-=1
+        if(counter<=0):
+          counter=0
+        print("Count:",counter)
+        while(1):
+            if sw_BtN1.value()==1:
+                time.sleep(0.1)
+                break
+      
+
+=================================================================================
+#ultrasonic sensor
+from machine import Pin
+import utime
+trigger = Pin(15, Pin.OUT)
+echo = Pin(14, Pin.IN)
+
+while True:
+    trigger.low()
+    utime.sleep_us(2)
+    trigger.high()
+    utime.sleep_us(5)
+    trigger.low()
+    while echo.value() == 0:
+       signaloff = utime.ticks_us()
+    while echo.value() == 1:
+       signalon = utime.ticks_us()
+    timepassed = signalon - signaloff
+    distance = (timepassed * 0.0343) / 2 
+    print("Total distance",distance,"cm")
+    print("sensor")
+    utime.sleep(1)
+############################################################################
+3.Externel interrupt rining edge and falling edge
+
+
+from machine import Pin       #importing classes
+from time import sleep    #Import sleep from time class
+
+button = False  
+
+def handle_interrupt(Pin):         
+ global button
+ button = True
+
+led=Pin(2,Pin.OUT)   
+sw=Pin(5,Pin.IN, Pin.PULL_UP)  
+
+sw.irq(trigger=Pin.IRQ_FALLING, handler=handle_interrupt)        
+#IRQ_RISING
+while True:
+  if button:
+   print('led on external interrupt')
+   led.value(1)
+   sleep(3)
+   led.value(0)
+   print('led off ')
+   button = False
+  else:
+   led.value(1)    #led is on
+   sleep(0.5)        #delay of 1 second
+   led.value(0)    #led is off
+   sleep(0.5)        #delay of 1 second
+================================================================================
+from machine import Pin       #importing classes
+from time import sleep    #Import sleep from time class
+
+button = False  
+
+def handle_interrupt(Pin):         
+ global button
+ button = True
+
+led=Pin(2,Pin.OUT)   
+sw=Pin(5,Pin.IN, Pin.PULL_UP)  
+
+sw.irq(trigger=Pin.IRQ_FALLING, handler=handle_interrupt)        
+
+while True:
+  if button:
+   print('external interrupt happen')
+   led.value(1)
+   sleep(3)
+   led.value(0)
+   print('led off ')
+   button = False
+  else:
+   led.value(1)    #led is on
+   sleep(0.5)        #delay of 1 second
+   led.value(0)    #led is off
+   sleep(0.5)        #delay of 1 second
+================================================================================
+from machine import Pin, Timer # from the machine module import Timer and Pin class 
+import time
+led = Pin(2, Pin.OUT) 	#GPIO25 as led output
+
+tim = Timer() 			# create an instance of Timer method
+def    blink(t):
+    led.toggle()         #function which is toggling the led
+#tim.init(freq=0.5, mode=Timer.PERIODIC, callback=blink) #2Hz #0.5sec t=1/f (f=2->500ms,f=4->250ms,f=0.5->2000ms) 
+tim.init(period=500, mode=Timer.PERIODIC, callback=blink)
+while(1):
+    print("hello")
+    time.sleep(0.1)   
+
+
+##############################################################################################
+4.Analog input
+from machine import Pin, ADC
+import time
+ 
+adc0 = machine.ADC(26)
+adc1 = machine.ADC(27)
+adc2 = machine.ADC(28)
+ 
+while True:
+    val1 = adc0.read_u16()
+    val2 = adc1.read_u16()
+    val3 = adc2.read_u16()
+    print("===============================")
+    print("adc0: ",val1)
+    print("adc1: ",val2)
+    print("adc2: ",val3)
+    time.sleep(0.5)
+
+
+==============================================================================
+from machine import Pin, ADC 
+import utime 
+
+POT_Value = ADC(28) 
+conversion_factor = 3.3/(65536) 
+
+while True:
+  print(POT_Value.read_u16())
+  #print(POT_Value.read_u16() * conversion_factor) 
+  utime.sleep(0.1)
+=============================================================================
+#lm35
+from machine import Pin
+import time
+import utime
+conversion_factor = 3.3/(65536)
+adc2 = machine.ADC(27)
+
+while True:
+    val2 = adc2.read_u16()
+    temp = (val2 * conversion_factor)*100
+    temp1 = int(temp)
+    temp2 = str(temp1)
+    print("===============================")
+    print("temperature: ",temp1)
+    time.sleep(0.8)
+============================================================================
+import machine
+import utime
+
+sensor_temp = machine.ADC(4)
+conversion_factor = 3.3 / (65535)
+
+while True:
+    reading = sensor_temp.read_u16() * conversion_factor
+    
+    # The temperature sensor measures the Vbe voltage of a biased bipolar diode, connected to the fifth ADC channel
+    # Typically, Vbe = 0.706V at 27 degrees C, with a slope of -1.721mV (0.001721) per degree. 
+    temperature = 27 - (reading - 0.706)/0.001721
+    print(temperature)
+    utime.sleep(2)
+
+
+###################################################################################################################################
+5.pwm
+==================================================================================================================================
+from machine import Pin, PWM
+from time import sleep
+
+led = PWM(Pin(2))
+led.freq(100)
+
+while True:
+    
+    for duty in range(0,65535):
+        led.duty_u16(duty)
+        sleep(0.0001)
+        
+    for duty in range(65535,0,-1):
+        led.duty_u16(duty)
+        sleep(0.0001)
+============================================================
+from machine import Pin, PWM
+import utime
+led = PWM(Pin(2))
+led.freq(1000)      # Set the frequency value
+led_value = 0       #LED brightness initial value
+led_speed = 5      # Change brightness in increments of 5
+if __name__ == '__main__':
+    while True:                            
+        led_value += led_speed           
+        led.duty_u16(int(led_value * 500))     # Set the duty cycle, between 0-65535
+        utime.sleep_ms(100)
+        if led_value >= 100:
+            led_value = 100
+            led_speed = -5
+        elif led_value <= 0:
+            led_value = 0
+            led_speed = 5
+=====================================================================================================================================
+from machine import Pin, PWM
+from time import sleep
+
+pot = machine.ADC(28)
+
+led = PWM(Pin(2))
+
+led.freq(100)
+
+while True:
+    val = pot.read_u16()
+    led.duty_u16(val)
+======================================================================================================================================
+from machine import Pin, PWM
+
+pwmpin = 2 # For Raspberry Pi Pico
+
+pwm_out = PWM(Pin(pwmpin, mode=Pin.OUT)) 
+pwm_out .freq(5_000)
+
+duty_cycle = 10 # Between 0 - 100 %
+duty=(int((duty_cycle/100)*65_535))
+
+while True:
+    
+        pwm_out.duty_u16(duty)
+
+======================================================================================================================================
+from machine import Pin, PWM
+import time
+pwmpin = 2 # For Raspberry Pi Pico
+#board pin 22
+pwm_up = Pin(4,Pin.IN, Pin.PULL_UP)
+pwm_down = Pin(5,Pin.IN, Pin.PULL_UP)
+
+pwm_out = PWM(Pin(pwmpin, mode=Pin.OUT)) 
+pwm_out .freq(5_000)
+
+duty_cycle = 10 # Between 0 - 100 %
+
+
+while True:
+        if pwm_up.value()==0:
+            print("pwmup Pressed1")
+            duty_cycle = duty_cycle+10
+            if(duty_cycle>90):
+                duty_cycle = 90
+            while(1):
+                if pwm_up.value()==1:
+                    print(duty_cycle)
+                    time.sleep(0.2)
+                    break
+        if pwm_down.value()==0:
+            print("pwmdown Pressed1")
+            duty_cycle = duty_cycle-10
+            if(duty_cycle<10):
+                duty_cycle = 10
+            while(1):
+                if pwm_down.value()==1:
+                    print(duty_cycle)
+                    time.sleep(0.2)
+                    break
+                    
+        duty=(int((duty_cycle/100)*65_535))
+       
+        pwm_out.duty_u16(duty)
+
+
+==================================================================================================================================
+servo
+from time import sleep
+
+from machine import Pin
+
+from machine import PWM
+
+pwm = PWM(Pin(0))
+
+pwm.freq(50)
+
+def setServoCycle (position):
+
+    pwm.duty_u16(position)
+
+    sleep(0.01)
+
+while True:
+
+    for pos in range(1000,9000,50):
+
+        setServoCycle(pos)
+
+    for pos in range(9000,1000,-50):
+
+        setServoCycle(pos)
+========================================================================================================================
+#Include the library files
+from machine import Pin,PWM,ADC
+from time import sleep
+
+servo = PWM(Pin(0))#Include the servo motor pin
+potentiometer = ADC(28)#Include the potentiometer pin
+servo.freq(50)#Set the frequency
+
+#PWM min and max value
+in_min = 0
+in_max = 65535
+#Servo motor min and max degrees
+out_min = 1000
+out_max = 9000
+
+
+while True:
+    #Get the potentiometer values
+    value = potentiometer.read_u16()
+    #Convert PWM values from 0 to 180
+    Servo = (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+    #Rotate the servo motor
+    servo.duty_u16(int(Servo))
+
+###########################################################################################################################################
+6.serial
+from machine import Pin,UART
+uart = UART(0,9600)
+data=""
+data1=""
+key="00355217"
+while True:
+    if uart.any():
+         command = uart.readline()
+         print(command)
+=========================================================================================================================
+import os
+import machine
+from time import sleep
+uart = machine.UART(0, 115200)
+print(uart)
+b = None
+msg = ""
+while True:
+    sleep(0.5)
+    print("===========")
+    print("hello usb")
+    uart.write("hello uart\n")
+==============================================================================================================================
+
+from machine import Pin
+import utime
+m=0
+led=Pin(7,Pin.OUT)
+led.low()
+while(1):
+    m=int(input("Enter The Condition :"))
+    if(m==1):
+        led.value(1)
+        print("on")
+    elif(m==0):
+        led.value(0)
+        print("off")
+    else:
+        print("unknown charachters")
+##########################################################################################################################################
+7.seven segment display
+===================================================================================================================================
+import machine
+
+I2C_SDA_PIN = 20
+I2C_SCL_PIN = 21
+i2c=machine.I2C(0,sda=machine.Pin(I2C_SDA_PIN), scl=machine.Pin(I2C_SCL_PIN), freq=400000)
+
+print('Scanning I2C bus.')
+devices = i2c.scan() # this returns a list of devices
+
+device_count = len(devices)
+
+if device_count == 0:
+    print('No i2c device found.')
+else:
+    print(device_count, 'devices found.')
+
+for device in devices:
+    print('Decimal address:', device, ", Hex address: ", hex(device))
+===========================================================================================================================================
+import pcf8574
+from machine import I2C, Pin
+import array as arr
+import machine
+import time
+
+analog_value = machine.ADC(28)
+
+count=0
+mod=0
+mod1=0
+
+m = arr.array('i', [0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7c,0x07,0x7f,0x67])
+ 
+i2c = I2C(id=0,scl=Pin(21),sda=Pin(20),freq=100000)
+pcf = pcf8574.PCF8574(i2c, 0x21)
+pcf.port =0x00
+pcf = pcf8574.PCF8574(i2c, 0x20)
+pcf.port =0x00
+
+while(1):
+    if(count<=98):
+        pcf = pcf8574.PCF8574(i2c, 0x21)
+        count=count+1
+        mod = count % 10
+        mod1 = count / 10
+        pcf.port =m[int(mod)]
+        print(count)
+        pcf = pcf8574.PCF8574(i2c, 0x20)
+        pcf.port =m[int(mod1)]
+    else:
+        print("reach maximum")
+    time.sleep(1)
+=================================================================================================================================
+import pcf8574
+from machine import I2C, Pin
+import array as arr
+import machine
+import time
+
+analog_value = machine.ADC(28)
+
+count=0
+mod=0
+mod1=0
+
+m = arr.array('i', [0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7c,0x07,0x7f,0x67])
+ 
+i2c = I2C(id=0,scl=Pin(21),sda=Pin(20),freq=100000)
+pcf = pcf8574.PCF8574(i2c, 0x21)
+pcf.port =0x00
+pcf = pcf8574.PCF8574(i2c, 0x20)
+pcf.port =0x00
+
+while(1):
+    reading = analog_value.read_u16()
+    value_in_digi =((reading/65536)*100)
+    count= int(value_in_digi)
+    print(count)
+    if(count<=98):
+        pcf = pcf8574.PCF8574(i2c, 0x21)
+        count=count+1
+        mod = count % 10
+        mod1 = count / 10
+        pcf.port =m[int(mod)]
+        print(count)
+        pcf = pcf8574.PCF8574(i2c, 0x20)
+        pcf.port =m[int(mod1)]
+    else:
+        print("reach maximum")
+    time.sleep(1)
+####################################################################################################################################################################
+8.lcd
+
+from machine import Pin
+from gpio_lcd import GpioLcd
+import time
+count=0
+lcd = GpioLcd(rs_pin = Pin(8),
+          enable_pin = Pin(9),
+          d4_pin = Pin(10),
+          d5_pin = Pin(11),
+          d6_pin = Pin(12),
+          d7_pin = Pin(13))
+lcd.move_to(0,0) 
+lcd.putstr("PERSON COUNTER")
+lcd.move_to(0,1) 
+lcd.putstr("TOTAL COUNT :")
+while (1):
+   count=count+1
+   lcd.move_to(13,1) 
+   lcd.putstr(str(count))
+   time.sleep(1)
+
+===============================================================================================================================================================
+
+from machine import Pin
+from gpio_lcd import GpioLcd
+import time
+import utime
+conversion_factor = 3.3/(65536)
+adc2 = machine.ADC(27)
+lcd = GpioLcd(rs_pin = Pin(8),
+          enable_pin = Pin(9),
+          d4_pin = Pin(10),
+          d5_pin = Pin(11),
+          d6_pin = Pin(12),
+          d7_pin = Pin(13))   
+while True:
+    val2 = adc2.read_u16()
+    temp = (val2 * conversion_factor)*100
+    temp1 = int(temp)
+    temp2 = str(temp1)
+    print("===============================")
+    print("temperature: ",temp1)
+
+    lcd.move_to(0,0) 
+    lcd.putstr('TEMP in Degree :')
+    lcd.move_to(0,1) 
+    lcd.putstr(temp2)
+    time.sleep(0.8)
+
+================================================================================================================================================================
+from machine import Pin
+from gpio_lcd import GpioLcd
+import time
+import utime
+
+trigger = Pin(15, Pin.OUT)
+echo = Pin(14, Pin.IN)
+lcd = GpioLcd(rs_pin = Pin(8),
+          enable_pin = Pin(9),
+          d4_pin = Pin(10),
+          d5_pin = Pin(11),
+          d6_pin = Pin(12),
+          d7_pin = Pin(13))
+
+while True:
+    trigger.low()
+    utime.sleep_us(2)
+    trigger.high()
+    utime.sleep_us(5)
+    trigger.low()
+    while echo.value() == 0:
+       signaloff = utime.ticks_us()
+    while echo.value() == 1:
+       signalon = utime.ticks_us()
+    timepassed = signalon - signaloff
+    distance1 = (timepassed * 0.0343) / 2 
+    print("Total distance",distance1,"cm")
+    print("sensor")
+
+    lcd.move_to(0,0) 
+    lcd.putstr('Distance in Cm :')
+    lcd.move_to(0,1)
+    lcd.putstr(' ')
+    
+    lcd.move_to(0,1) 
+    lcd.putstr(str(distance1))
+    time.sleep(0.5)
+   
+=====================================================
+##############################################################################################################################################
+
+
+9.sio
+========================================================================================================================
+#sio write
+from machine import mem32,Pin
+from time import sleep_ms 
+led1=Pin(2,mode=Pin.OUT)
+led2=Pin(3,mode=Pin.OUT)
+
+addrSIO = 0xd0000000
+while True:
+    mem32[addrSIO + 0x014] = 0x0000000c
+    sleep_ms(500)
+    mem32[addrSIO + 0x018] = 0x0000000c
+    sleep_ms(500)
+===========================================================================================================================
+#sio read
+from machine import mem32,Pin
+from time import sleep_ms 
+  
+addrSIO = 0xd0000000
+while True:
+    value=mem32[addrSIO + 0x004]
+    print(bin(value))
+    sleep_ms(500)
+===========================================================================================================================
+from machine import mem32,Pin
+from time import sleep_ms
+import array as arr
+pinout = [0,1,16,17,18,19,22,14,15]
+#pinout =[a,b, c, d, e, f, g]
+count =0
+for x in range(0,9):
+    pinout[x]=Pin(pinout[x], Pin.OUT)
+pinout[7].low()
+pinout[8].low()
+a = [0x000F0003, 0x00010002, 0x00460003, 0x00430003, 0x00490002, 0x004B0001, 0x004F0001, 0x00010003, 0x004F0003, 0x004B0003]
+
+addrSIO = 0xd0000000
+i=0
+while(1):
+    for x in range(10):
+        pinout[8].low()
+        pinout[7].high()
+        mem32[addrSIO + 0x014] = a[x]
+        sleep_ms(500)
+        mem32[addrSIO + 0x018] = a[x]
+        sleep_ms(500)
+
+    for x in range(10):
+        pinout[7].low()
+        pinout[8].high()
+        mem32[addrSIO + 0x014] = a[x]
+        sleep_ms(500)
+        mem32[addrSIO + 0x018] = a[x]
+        sleep_ms(500)
+==========================================================================================================================
+wokwi 7 segment
+from machine import mem32,Pin
+from time import sleep_ms
+import array as arr
+pinout = [0,1,2,3,4,5,6]
+#pinout =[a,b, c, d, e, f, g]
+count =0
+for x in range(0,7):
+    pinout[x]=Pin(pinout[x], Pin.OUT)
+a = [0x40,0x79,0x24,0x30,0x19,0x12,0x02,0x78,0x00,0x10]
+addrSIO = 0xd0000000
+i=0
+while(1):
+    for x in range(10):
+
+        mem32[addrSIO + 0x010] = a[x]
+        sleep_ms(500)
+        mem32[addrSIO + 0x010] = 0xff
+        sleep_ms(500)
+===========================================================================================================================
+
+
+
+##########################################################################################################################################
+10.dual core
+============================================================================================================================================
+#without dual core
+from machine import Pin
+import time
+
+while True:
+   print("============")
+
+   for x in range(5):
+       print("core0",x)
+       time.sleep(1)
+       
+   for x in range(5):
+       print("core1",x)
+       time.sleep(0.5)
+
+==========================================================================================================
+#with dual core
+from machine import Pin
+import time
+import _thread
+
+def second_core_function():
+
+    while(1):
+        for x in range(5):
+           print("core1",x)
+           time.sleep(0.5)
+
+_thread.start_new_thread(second_core_function, ())
+
+
+while True:
+
+   for x in range(5):
+       print("core0",x)
+       time.sleep(1)
+================================================================================================================
+from machine import Pin
+import time
+import _thread
+led1=Pin(2,Pin.OUT)
+led2=Pin(3,Pin.OUT)
+
+def second_core_function():
+
+    while(1):
+           led2.toggle()
+           time.sleep(0.5)
+
+_thread.start_new_thread(second_core_function, ())
+
+
+while True:
+    led1.toggle()    
+    time.sleep(1)
+================================================================================================================
+import pcf8574
+from machine import I2C, Pin
+import time
+import _thread
+import array as arr
+import utime
+trigger = Pin(15, Pin.OUT)
+echo = Pin(14, Pin.IN)
+
+
+
+# lcd
+from gpio_lcd import GpioLcd
+lcd = GpioLcd(rs_pin = Pin(8),
+          enable_pin = Pin(9),
+          d4_pin = Pin(10),
+          d5_pin = Pin(11),
+          d6_pin = Pin(12),
+          d7_pin = Pin(13))
+
+def second_core_function():
+    i=0
+    buzzer = Pin(6, Pin.OUT)
+    global distance1
+    #data
+    m = arr.array('i', [0x00,0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7c,0x07,0x7f,0x67])
+    #address
+    a = arr.array('i', [0x20,0x21]) 
+
+    i2c = I2C(id=0,scl=Pin(21),sda=Pin(20),freq=100000)
+    pcf = pcf8574.PCF8574(i2c, 0x20)
+    while(1):
+        
+        pcf = pcf8574.PCF8574(i2c, a[i])
+        i=i+1
+        for n in range(11):
+            pcf.port =m[n]
+            
+            if(distance1<30):
+                buzzer.value(1)
+            else:
+                buzzer.value(0)
+            time.sleep(0.5)
+        if(i>1):
+            i=0
+        
+_thread.start_new_thread(second_core_function, ())
+
+
+while True:
+    trigger.low()
+    utime.sleep_us(2)
+    trigger.high()
+    utime.sleep_us(5)
+    trigger.low()
+    while echo.value() == 0:
+       signaloff = utime.ticks_us()
+    while echo.value() == 1:
+       signalon = utime.ticks_us()
+    timepassed = signalon - signaloff
+    distance = (timepassed * 0.0343) / 2
+    distance1 = int(distance)
+    print("Total distance",distance,"cm")
+
+
+
+    lcd.move_to(0,0) 
+    lcd.putstr('Distance in Cm :')
+    lcd.move_to(0,1)
+    lcd.putstr("    ")
+    lcd.move_to(0,1)
+    lcd.putstr(str(distance1))
+    time.sleep(0.5)
+
+===========================================================================================================
+from machine import Pin,ADC
+from time import sleep
+
+POT_Value = ADC(28)
+
+def map_value(in_v, in_min, in_max, out_min, out_max): 
+    v = (in_v - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+    if v < out_min:
+        v = out_min
+    elif v > out_max:
+        v = out_max
+    return v
+
+while(1):
+    value = POT_Value.read_u16()
+    m=map_value(value,0,65535,0,100)
+    print(m)
+    sleep(1)
+
+===============================================================================================================================
+clout
+
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+
+
+
+
+
+
+
+
+
+    
+
+        
+
+
+
+
+
+
+
+
